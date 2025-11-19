@@ -15,7 +15,6 @@ runtime: shiny
 # Loading Required Packages
 
 ```{r}
-
 library(tidyverse)
 library(flexdashboard)
 library(plotly)
@@ -29,7 +28,7 @@ library(shiny)
 
 # Reading Dataset Directly from GitHUb
 
-```#{r}
+```{r}
 
 breed_traits <- readr::read_csv(
   "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-02-01/breed_traits.csv"
