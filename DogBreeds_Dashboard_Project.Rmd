@@ -305,5 +305,22 @@ ggplotly(p, tooltip = c("text", "x", "y"))
 ```
 
 
+##Amy 
+
+# **About the Dashboard**
+This dashboard explores dog breed characteristics and popularity using data from the **TidyTuesday (2022-02-01) Dog Breeds dataset**.  
+
+It includes three main components:
+
+- **Popularity over time:** Choose a breed to see how its AKC ranking has changed from year to year.
+- **Trait vs. Popularity:** Select a trait (e.g., Trainability, Shedding Level) and explore how it relates to breed popularity.
+- **Interactive Data Table:** Browse and filter all breeds and their characteristics.
+
+**How to use the dashboard:**
+- Use the **breed dropdown** to select a breed for the time-trend plot.
+- Use the **trait dropdown** to choose which trait to compare against AKC rank.
+- Use the interactive table filters to compare breeds.
+
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
