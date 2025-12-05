@@ -1,0 +1,245 @@
+---
+title: "Dog Breeds Dashboard"
+author: "Jeffrey Gonzales, Morgan Hertel, Amy Gill"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+# Load packages
+library(flexdashboard)
+library(shiny)
+library(tidyverse)
+library(plotly)
+library(DT)
+library(stringr)
+
+# Read in data -------------------------------------------------------------
+
+breed_rank <- readr::read_csv("data/breed_rank.csv")
+breed_traits <- readr::read_csv("data/breed_traits.csv")
+trait_description <- readr::read_csv("data/trait_description.csv")
+
+# Clean breed names (fix weird non-breaking spaces) ------------------------
+
+breed_traits <- breed_traits %>%
+  mutate(Breed = str_replace_all(Breed, "\u00a0", " "))
+
+# Image lookup table from breed_rank.csv
+
+breed_images <- breed_rank %>%
+  dplyr::select(Breed, ImageURL = Image)
+
+# Make long version of rank data: one row per breed–year -------------------
+
+rank_long <- breed_rank %>%
+  pivot_longer(
+    cols = ends_with("Rank"),      # all the 2013 Rank, 2014 Rank, ...
+    names_to = "Year",
+    values_to = "Rank"
+  ) %>%
+  mutate(
+    Year = readr::parse_number(Year)  # turn "2013 Rank" → 2013
+  )
+
+# Long version of traits: one row per breed–trait ---------------------------
+
+trait_long <- breed_traits %>%
+  pivot_longer(
+    cols = where(is.numeric),   # <-- only the numeric trait columns
+    names_to = "Trait",
+    values_to = "Score"
+  )
+
+# For trait descriptions, make a helper table to join later -----------------
+
+trait_desc_clean <- trait_description %>%
+  filter(Trait %in% unique(trait_long$Trait)) %>%  # keep only numeric traits
+  select(Trait, Trait_1, Trait_5, Description)
+
+```
+
+OVERVIEW & POPULARITY
+=====================================
+
+Column
+-----------------------------------------------------------------------
+
+### About this dashboard
+
+This flexdashboard explores American Kennel Club (AKC) data on dog breeds:
+
+-   **Breed popularity over time (2013–2020)** based on yearly AKC rank.\
+-   **Behavior and care traits** such as affection, energy level, shedding, trainability, etc.\
+-   **Trait definitions** to help interpret the 1–5 scores (1 = low, 5 = high).
+
+Use the tabs and interactive plots below to:
+
+-   Compare how popular a breed has been over recent years.\
+-   Explore the profile of each breed across different traits.\
+-   Look up what each trait score actually means.
+
+```{r}
+
+# Show a small preview of the rank data
+
+datatable(
+breed_rank %>% select(Breed, `2013 Rank`, `2020 Rank`) %>% head(10),
+options = list(pageLength = 5),
+caption = "Sample of dog breeds with popularity rank (lower = more popular)."
+)
+
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Popularity Rank Trends
+
+```{r}
+
+renderPlotly({
+req(input$breed_select)
+
+# Filter for selected breeds
+
+df <- rank_long %>%
+filter(Breed %in% input$breed_select)
+
+p <- ggplot(df, aes(x = Year, y = Rank, color = Breed)) +
+geom_line(linewidth = 1) +
+geom_point(size = 2) +
+scale_y_reverse(
+breaks = 1:20,
+limits = c(max(df$Rank, na.rm = TRUE), 1)
+) +
+labs(
+x = "Year",
+y = "AKC popularity rank (1 = most popular)",
+title = "Popularity rank of selected dog breeds over time",
+color = "Breed"
+) +
+theme_minimal()
+
+ggplotly(p, tooltip = c("Breed", "Year", "Rank"))
+})
+
+
+```
+
+### Popularity over time
+
+```{r}
+
+# Sidebar control: choose one or more breeds to plot
+
+selectInput(
+inputId = "breed_select",
+label = "Select breed(s):",
+choices = sort(unique(rank_long$Breed)),
+selected = c("Retrievers (Labrador)", "French Bulldogs"),
+multiple = TRUE
+)
+
+```
+
+Breed Traits
+=====================================
+
+Row {data-width=25%}
+--------------------------------------------------------------------------------
+### Breed Traits Explorer
+
+```{r}
+
+# Separate dropdown for traits panel
+
+selectInput(
+inputId = "breed_traits_select",
+label = "Choose a breed:",
+choices = sort(unique(trait_long$Breed)),
+selected = "Retrievers (Labrador)"
+)
+
+```
+
+### Breed Image
+
+```{r}
+
+# show image for the selected breed
+
+renderUI({
+req(input$breed_traits_select)
+
+# look up image URL from breed_images
+
+img_url <- breed_images %>%
+dplyr::filter(Breed == input$breed_traits_select) %>%
+dplyr::pull(ImageURL)
+
+if (length(img_url) == 0 || is.na(img_url)) {
+tags$p("No image available yet for this breed.")
+} else {
+tags$img(
+src = img_url,
+style = "max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);"
+)
+}
+})
+
+```
+
+Column
+--------------------------------------------------------------------------------
+
+### Traits Scores for Selected Breed
+
+```{r}
+
+renderPlotly({
+req(input$breed_traits_select)
+
+df <- trait_long %>%
+filter(Breed == input$breed_traits_select) %>%
+left_join(trait_desc_clean, by = c("Trait" = "Trait"))
+
+# Order traits from highest to lowest score for nicer plotting
+
+df <- df %>%
+arrange(Score) %>%
+mutate(Trait = factor(Trait, levels = Trait))
+
+p <- ggplot(df, aes(x = Score, y = Trait)) +
+geom_col() +
+scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
+labs(
+x = "Score (1 = low, 5 = high)",
+y = "Trait",
+title = paste("Trait profile for", input$breed_traits_select)
+) +
+theme_minimal()
+
+ggplotly(p, tooltip = c("Trait", "Score"))
+})
+
+```
+
+Row
+--------------------------------------------------------------------------------
+### Trait Explanation
+
+```{r}
+
+# Show trait descriptions in an interactive table
+
+datatable(
+trait_desc_clean,
+options = list(pageLength = 5),
+caption = "What each trait means (1 vs 5 on the scale)."
+)
+
+```
