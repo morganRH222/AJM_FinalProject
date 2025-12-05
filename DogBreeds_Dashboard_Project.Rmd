@@ -162,7 +162,16 @@ trait_choices <- setNames(trait_vars, trait_vars)
 trait_choices
 
 ```
+## Top 10 breeds by 2020 rank 
 
+```{r}
+#Creating object with just top 10 breeds for future graphing 
+top10_latest <- dog_data %>%
+  filter(!is.na(latest_rank)) %>%
+  arrange(latest_rank) %>%
+  slice_head(n=10)
+
+```
 
 # Graphing Plots for Dashboard Panes
 
