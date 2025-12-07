@@ -31,7 +31,7 @@ breed_traits <- breed_traits %>%
 # Image lookup table from breed_rank.csv
 
 breed_images <- breed_rank %>%
-  dplyr::select(Breed, ImageURL = Image)
+  dplyr::select(Breed, ColorImageURL = Color_Image, ImageURL = Image)
 
 # Make long version of rank data: one row per breed–year -------------------
 
@@ -62,13 +62,11 @@ trait_desc_clean <- trait_description %>%
 
 ```
 
-OVERVIEW & POPULARITY
-=====================================
+# **OVERVIEW**
 
-Column
------------------------------------------------------------------------
+## Column
 
-### About this dashboard
+### **ABOUT THIS DASHBOARD**
 
 This flexdashboard explores American Kennel Club (AKC) data on dog breeds:
 
@@ -76,7 +74,7 @@ This flexdashboard explores American Kennel Club (AKC) data on dog breeds:
 -   **Behavior and care traits** such as affection, energy level, shedding, trainability, etc.\
 -   **Trait definitions** to help interpret the 1–5 scores (1 = low, 5 = high).
 
-Use the tabs and interactive plots below to:
+Use the tabs and interactive plots to:
 
 -   Compare how popular a breed has been over recent years.\
 -   Explore the profile of each breed across different traits.\
@@ -87,17 +85,36 @@ Use the tabs and interactive plots below to:
 # Show a small preview of the rank data
 
 datatable(
-breed_rank %>% select(Breed, `2013 Rank`, `2020 Rank`) %>% head(10),
-options = list(pageLength = 5),
+breed_rank %>% select(Breed, `2013 Rank`,`2014 Rank`,`2015 Rank`,`2016 Rank`,`2017 Rank`,`2018 Rank`,`2019 Rank`, `2020 Rank`) %>% head(10),
+options = list(pageLength = 10),
 caption = "Sample of dog breeds with popularity rank (lower = more popular)."
+)
+
+```
+
+# **POPULARITY**
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+### Popularity over time
+
+```{r}
+# Sidebar control: choose one or more breeds to plot
+
+selectInput(
+  inputId = "breed_select",
+  label = "Select breed(s):",
+  choices = sort(unique(rank_long$Breed)),
+  selected = c("Retrievers (Labrador)", "French Bulldogs"),
+  multiple = TRUE
 )
 
 ```
 
 Column
 -----------------------------------------------------------------------
-
-### Popularity Rank Trends
+### **POPULARITY RANK TRENDS**
 
 ```{r}
 
@@ -130,28 +147,13 @@ ggplotly(p, tooltip = c("Breed", "Year", "Rank"))
 
 ```
 
-### Popularity over time
 
-```{r}
+# **BREED TRAITS**
 
-# Sidebar control: choose one or more breeds to plot
+Column {.sidebar}
+-----------------------------------------------------------------------
 
-selectInput(
-inputId = "breed_select",
-label = "Select breed(s):",
-choices = sort(unique(rank_long$Breed)),
-selected = c("Retrievers (Labrador)", "French Bulldogs"),
-multiple = TRUE
-)
-
-```
-
-Breed Traits
-=====================================
-
-Row {data-width=25%}
---------------------------------------------------------------------------------
-### Breed Traits Explorer
+### **BREED TRAITS EXPLORER** 
 
 ```{r}
 
@@ -166,7 +168,7 @@ selected = "Retrievers (Labrador)"
 
 ```
 
-### Breed Image
+### Sketch
 
 ```{r}
 
@@ -193,10 +195,36 @@ style = "max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 10p
 
 ```
 
-Column
---------------------------------------------------------------------------------
+### Colored Image
 
-### Traits Scores for Selected Breed
+```{r}
+
+# show image for the selected breed
+
+renderUI({
+req(input$breed_traits_select)
+
+# look up image URL from breed_images
+
+img_url <- breed_images %>%
+dplyr::filter(Breed == input$breed_traits_select) %>%
+dplyr::pull(ColorImageURL)
+
+if (length(img_url) == 0 || is.na(img_url)) {
+tags$p("No image available yet for this breed.")
+} else {
+tags$img(
+src = img_url,
+style = "max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);"
+)
+}
+})
+
+```
+
+## Column
+
+### **TRAITS SCORES FOR SELECTED BREED**
 
 ```{r}
 
@@ -228,9 +256,7 @@ ggplotly(p, tooltip = c("Trait", "Score"))
 
 ```
 
-Row
---------------------------------------------------------------------------------
-### Trait Explanation
+### **TRAITS EXPLANATION**
 
 ```{r}
 
