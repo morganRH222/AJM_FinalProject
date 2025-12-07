@@ -154,7 +154,7 @@ datatable(
 
 
 
-Column {data-width=350 .sidebar}
+Column {data-width=340 .sidebar}
 -----------------------------------------------------------------------
 
 ### **🐩  BREED SELECTION 🐾**
@@ -230,53 +230,142 @@ renderUI({
 })
 ```
 
-Column {data-width=65}
+Column {data-width=55}
 -----------------------------------------------------------------------
 ### **🐕 POPULARITY RANK TRENDS 📈**
 
 ```{r}
 
 renderPlotly({
-  req(input$breed_select)
+req(input$breed_select)
 
-  # Filter for selected breeds
-  df <- rank_long %>%
-    dplyr::filter(Breed %in% input$breed_select)
+#Filter for selected breeds and join image info (if needed later)
 
-  # If nothing left after filtering, bail out gracefully
-  if (nrow(df) == 0) {
-    return(NULL)
+df <- rank_long %>%
+dplyr::filter(Breed %in% input$breed_select) %>%
+dplyr::left_join(breed_images, by = "Breed")
+
+#If nothing left after filtering, bail out gracefully
+
+if (nrow(df) == 0) {
+return(NULL)
+}
+
+#Determine an adaptive upper limit for the rank axis
+
+max_rank_sel <- max(df$Rank, na.rm = TRUE)
+upper_limit <- max(20, max_rank_sel)
+
+#Choose nice breaks (every 5 ranks)
+
+breaks_y <- seq(1, upper_limit, by = 5)
+
+p <- ggplot(
+df,
+aes(
+x = Year,
+y = Rank,
+color = Breed,
+key = Breed # pass Breed as key for hover events
+)
+) +
+geom_line(linewidth = 1) +
+geom_point(size = 2) +
+scale_y_reverse(
+limits = c(upper_limit, 1),
+breaks = breaks_y
+) +
+labs(
+x = "Year",
+y = "AKC popularity rank (1 = most popular)",
+title = "Popularity rank of selected dog breeds over time",
+color = "Breed"
+) +
+theme_minimal()
+
+ggplotly(
+p,
+tooltip = c("Breed", "Year", "Rank"),
+source = "pop_plot" # give this plot a source ID
+)
+})
+```
+
+Column {data-width=45}
+-----------------------------------------------------------------------
+🐶 BREED IMAGE ON HOVER
+```{r}
+renderUI({
+  # Hover event from this specific plot
+  d <- plotly::event_data("plotly_hover", source = "pop_plot")
+
+  if (is.null(d) || nrow(d) == 0) {
+    return(
+      tags$div(
+        style = "
+          display: flex;
+          align-items: center;      /* vertical center */
+          justify-content: center;  /* horizontal center */
+          height: 100%;
+          width: 100%;
+          text-align: center;
+        ",
+        tags$p("Hover over a point in the popularity plot to see the breed image here.")
+      )
+    )
   }
 
-  # Determine an adaptive upper limit for the rank axis
-  # - At least 20 (so top-20 is always visible)
-  # - But extend to cover the worst (largest) rank among selected breeds
-  max_rank_sel <- max(df$Rank, na.rm = TRUE)
-  upper_limit  <- max(20, max_rank_sel)
+  # Breed from 'key' we set in aes(key = Breed)
+  breed_hovered <- d$key[1]
 
-  # Choose nice breaks (every 5 ranks)
-  breaks_y <- seq(1, upper_limit, by = 5)
+  img_url <- breed_images %>%
+    dplyr::filter(Breed == breed_hovered) %>%
+    dplyr::pull(ColorImageURL) %>%
+    .[1]
 
-  p <- ggplot(df, aes(x = Year, y = Rank, color = Breed)) +
-    geom_line(linewidth = 1) +
-    geom_point(size = 2) +
-    scale_y_reverse(
-      limits = c(upper_limit, 1),
-      breaks = breaks_y
-    ) +
-    labs(
-      x = "Year",
-      y = "AKC popularity rank (1 = most popular)",
-      title = "Popularity rank of selected dog breeds over time",
-      color = "Breed"
-    ) +
-    theme_minimal()
+  if (is.null(img_url) || is.na(img_url) || length(img_url) == 0) {
+    return(
+      tags$div(
+        style = "
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          width: 100%;
+          text-align: center;
+        ",
+        tags$p(paste("No image available yet for", breed_hovered))
+      )
+    )
+  }
 
-  ggplotly(p, tooltip = c("Breed", "Year", "Rank"))
+  tags$div(
+    style = "
+      display: flex;
+      align-items: center;      /* vertical center */
+      justify-content: center;  /* horizontal center */
+      height: 100%;
+      width: 100%;
+      text-align: center;
+    ",
+    tags$div(
+      tags$h4(breed_hovered),
+      tags$img(
+        src   = img_url,
+        style = "
+          max-width: 100%;
+          height: auto;
+          border-radius: 10px;
+          box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        "
+      )
+    )
+  )
 })
 
-
 ```
+
+
 
 **🐩 BREED TRAITS EXPLORER 🐕**
 =====================================
