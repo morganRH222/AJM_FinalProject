@@ -163,9 +163,9 @@ Column {data-width=350 .sidebar}
 inputPanel(
   selectInput(
     inputId  = "breed_select",
-    label    = "Select breed(s):",
+    label    = "Please select breed(s) to compare:",
     choices  = sort(unique(rank_long$Breed)),
-    selected = c(0),
+    selected = c("Retrievers (Labrador)"),
     multiple = TRUE
   ),
   actionButton(
@@ -181,7 +181,7 @@ observeEvent(input$reset_breeds, {
   updateSelectInput(
     session,
     "breed_select",
-    selected = c(0)  # reset to defaults
+    selected = c("Retrievers (Labrador)")  # reset to defaults
     # or use selected = character(0) to clear everything
   )
 })
@@ -278,23 +278,27 @@ renderPlotly({
 
 ```
 
-**🐩 BREED TRAITS 🐕**
+**🐩 BREED TRAITS EXPLORER 🐕**
 =====================================
 
 Column {data-width=550 .sidebar}
 -----------------------------------------------------------------------
 
-### **BREED TRAITS EXPLORER** 
+### **PLEASE SELECT DOG BREED** 
 
 ```{r}
 
 # Separate dropdown for traits panel
 
-selectInput(
-inputId = "breed_traits_select",
-label = "Choose a breed:",
-choices = sort(unique(trait_long$Breed)),
-selected = "Retrievers (Labrador)"
+selectizeInput(
+  inputId = "breed_traits_select",
+  label   = "I want to have a:",
+  choices = sort(unique(trait_long$Breed)),
+  selected = "Retrievers (Labrador)",   # or NULL if you want no default
+  options = list(
+    placeholder = 'Type or select a breed...',
+    maxItems    = 1
+  )
 )
 
 ```
