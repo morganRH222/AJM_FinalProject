@@ -177,6 +177,103 @@ datatable(
 
 ```
 
+
+📊 SUMMARY 📊
+=====================================
+
+Column {data-width=100}
+-----------------------------------------------------------------------
+
+### Total Breeds in Dataset
+```{r}
+renderValueBox({
+  valueBox(
+    value = total_breeds,
+    icon = "fa-dog",
+    color = "#8C5A3C"
+  )
+})
+```
+
+### Most Popular Breed (2020)
+```{r}
+renderValueBox({
+  valueBox(
+    value = most_popular_2020,
+    icon = "fa-trophy",
+    color = "#D4A574"
+  )
+})
+```
+
+### Biggest Rank Improvement (2013-2020)
+```{r}
+renderValueBox({
+  valueBox(
+    value = paste(biggest_improver, "(+", biggest_improvement, "spots)"),
+    icon = "fa-arrow-up",
+    color = "#6B8E23"
+  )
+})
+```
+
+Column {data-width=50}
+-----------------------------------------------------------------------
+
+### 📈 Average Trait Scores Across All Breeds
+```{r}
+renderPlotly({
+  trait_avg <- trait_long %>%
+    group_by(Trait) %>%
+    summarise(
+      avg_score = mean(Score, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    arrange(avg_score) %>%
+    mutate(Trait = factor(Trait, levels = Trait))
+  
+  p <- ggplot(trait_avg, aes(x = avg_score, y = Trait, fill = avg_score)) +
+    geom_col() +
+    scale_fill_viridis_c(option = "H") +
+    scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
+    labs(
+      x = "Average Score",
+      y = "Trait",
+      title = "Mean trait scores across all dog breeds"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "none")
+  
+  ggplotly(p, tooltip = c("Trait", "avg_score"))
+})
+```
+
+Column {data-width=50}
+-----------------------------------------------------------------------
+
+### 📊 Distribution of Trait Scores
+```{r}
+renderPlotly({
+  p <- ggplot(trait_long, aes(x = Score)) +
+    geom_histogram(bins = 5, fill = "#8C5A3C", color = "#4A2C2A", alpha = 0.7) +
+    facet_wrap(~ Trait, ncol = 3) +
+    scale_x_continuous(breaks = 1:5) +
+    labs(
+      x = "Score",
+      y = "Number of Breeds",
+      title = "Distribution of scores for each trait"
+    ) +
+    theme_minimal() +
+    theme(
+      strip.text = element_text(size = 8, face = "bold"),
+      axis.text = element_text(size = 7)
+    )
+  
+  ggplotly(p)
+})
+```
+
+
 **📊 POPULARITY 📊**
 =====================================
 
@@ -528,4 +625,137 @@ datatable(
   caption = "What each trait means (1 vs 5 on the scale)."
 )
 
+```
+
+
+🔗 TRAIT CORRELATION 🔗
+=====================================
+
+Column {data-width=60}
+-----------------------------------------------------------------------
+
+### 🌡️ Trait Correlation Heatmap
+```{r}
+renderPlotly({
+  # Convert correlation matrix to long format for ggplot
+  trait_cor_long <- trait_cor %>%
+    as.data.frame() %>%
+    rownames_to_column("Trait1") %>%
+    pivot_longer(
+      cols = -Trait1,
+      names_to = "Trait2",
+      values_to = "Correlation"
+    )
+  
+  p <- ggplot(trait_cor_long, aes(x = Trait1, y = Trait2, fill = Correlation)) +
+    geom_tile(color = "white") +
+    scale_fill_gradient2(
+      low = "#2166AC",
+      mid = "white",
+      high = "#B2182B",
+      midpoint = 0,
+      limits = c(-1, 1),
+      name = "Correlation"
+    ) +
+    labs(
+      x = "",
+      y = "",
+      title = "Correlation between dog breed traits"
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+      axis.text.y = element_text(size = 8),
+      panel.grid = element_blank()
+    )
+  
+  ggplotly(p, tooltip = c("Trait1", "Trait2", "Correlation"))
+})
+```
+
+Column {data-width=40}
+-----------------------------------------------------------------------
+
+### 🔍 Select Traits to Explore Correlation
+```{r}
+selectInput(
+  inputId = "trait_x",
+  label = "Select X-axis trait:",
+  choices = colnames(trait_cor),
+  selected = "Affectionate With Family"
+)
+
+selectInput(
+  inputId = "trait_y",
+  label = "Select Y-axis trait:",
+  choices = colnames(trait_cor),
+  selected = "Good With Young Children"
+)
+```
+
+### 📉 Scatterplot: Selected Traits
+```{r}
+renderPlotly({
+  req(input$trait_x, input$trait_y)
+  
+  df <- breed_traits %>%
+    select(Breed, 
+           x_trait = all_of(input$trait_x), 
+           y_trait = all_of(input$trait_y))
+  
+  # Calculate correlation for these two traits
+  cor_value <- cor(df$x_trait, df$y_trait, use = "complete.obs")
+  
+  p <- ggplot(df, aes(x = x_trait, y = y_trait, text = Breed)) +
+    geom_jitter(width = 0.1, height = 0.1, alpha = 0.6, color = "#8C5A3C", size = 2) +
+    geom_smooth(method = "lm", se = TRUE, color = "#D4A574", fill = "#D4A574", alpha = 0.2) +
+    scale_x_continuous(breaks = 1:5) +
+    scale_y_continuous(breaks = 1:5) +
+    labs(
+      x = input$trait_x,
+      y = input$trait_y,
+      title = paste0("Correlation: ", round(cor_value, 3))
+    ) +
+    theme_minimal()
+  
+  ggplotly(p, tooltip = c("text", "x", "y"))
+})
+```
+
+### 📋 Strongest Correlations
+```{r}
+renderDT({
+  # Get upper triangle of correlation matrix (avoid duplicates)
+  trait_cor_long <- trait_cor %>%
+    as.data.frame() %>%
+    rownames_to_column("Trait1") %>%
+    pivot_longer(
+      cols = -Trait1,
+      names_to = "Trait2",
+      values_to = "Correlation"
+    ) %>%
+    filter(Trait1 != Trait2) %>%  # remove self-correlations
+    mutate(pair = paste(pmin(Trait1, Trait2), pmax(Trait1, Trait2), sep = " - ")) %>%
+    distinct(pair, .keep_all = TRUE) %>%
+    select(Trait1, Trait2, Correlation) %>%
+    arrange(desc(abs(Correlation))) %>%
+    head(10)
+  
+  datatable(
+    trait_cor_long,
+    options = list(
+      pageLength = 10,
+      dom = 't'  # just show table, no other controls
+    ),
+    caption = "Top 10 strongest correlations between traits (positive or negative)"
+  ) %>%
+    formatRound("Correlation", 3) %>%
+    formatStyle(
+      "Correlation",
+      backgroundColor = styleInterval(
+        cuts = c(-0.5, 0, 0.5),
+        values = c("#2166AC", "#F7F7F7", "#F7F7F7", "#B2182B")
+      )
+    )
+})
 ```
