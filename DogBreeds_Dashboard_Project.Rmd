@@ -22,6 +22,7 @@ library(DT)
 library(stringr)
 library(dplyr)
 library(shiny)
+library(ggplot2)
 
 ```
 
