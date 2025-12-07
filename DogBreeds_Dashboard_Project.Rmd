@@ -12,9 +12,10 @@ runtime: shiny
 
 ```
 
-# Loading Required Packages
+# To Load Required Packages
 
 ```{r}
+
 library(tidyverse)
 library(flexdashboard)
 library(plotly)
@@ -27,9 +28,9 @@ library(ggplot2)
 ```
 
 
-# Reading Dataset Directly from GitHUb
+# To Read Dataset Directly from GitHUb
 
-```{r}
+```#{r}
 
 breed_traits <- readr::read_csv(
   "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-02-01/breed_traits.csv"
@@ -45,7 +46,7 @@ breed_rank <- readr::read_csv(
 
 ```
 
-# Reading Downloaded Dataset
+# To Read Downloaded Dataset
 
 ```{r}
 
@@ -58,7 +59,7 @@ spec(trait_description)
 spec(breed_rank)
 ```
 
-# Cleaning Data
+# To Clean Data
 
 ```{r}
 
@@ -80,7 +81,7 @@ head(breed_traits_clean)
 head(breed_rank_clean)
 ```
 
-# Wrangling the Data for Analyses
+# To Wrangle the Data for Analyses
 
 ## Long format for Ranking
 
@@ -99,7 +100,7 @@ breed_rank_long <- breed_rank_clean %>%
 ```
 
 
-## Getting Most Recent Year Rank as "Current" Popularity
+## To Get Most Recent Year Rank as "Current" Popularity
 
 ```{r}
 
@@ -115,7 +116,7 @@ breed_rank_latest
 
 ```
 
-## Joining Traits and latest rank into one dataframe
+## To Join Traits and latest rank into one dataframe
 
 ```{r}
 
@@ -130,7 +131,29 @@ dog_data
 
 ```
 
-## Creating a Vector of Breeds for Dropdown Menu
+
+# To create a "family" and "variant" column for similar breed
+This is an option on our dashboard to allow user to compare breeds from the same family (e.g. Golden Retriever and Labrador Retriever)
+
+```{r}
+
+dog_data <- dog_data %>%
+  mutate(
+    # Family: first word before the first space
+    Breed_family  = str_extract(Breed, "^[^ ]+"),
+    
+    # Variant: text inside parentheses, e.g. (Labrador) -> "Labrador"
+    Breed_variant = str_extract(Breed, "(?<=\\().*(?=\\))")
+  )
+
+dog_data %>%
+  select(Breed, Breed_family, Breed_variant) %>%
+  head()
+
+```
+
+
+## To Create a Vector of Breeds for Dropdown Menu
 
 ```{r}
 
@@ -141,7 +164,7 @@ breed_choices
 ```
 
 
-## Creating a Vector of Trait Variables 
+## To Create a Vector of Trait Variables 
 We want to allow the user to choose for the x-axis
 
 ```{r}
@@ -154,7 +177,7 @@ trait_vars
 
 ```
 
-## Creating a named vector for Select Input Choices
+## To Create a named vector for Select Input Choices
 
 ```{r}
 
@@ -304,6 +327,23 @@ ggplotly(p, tooltip = c("text", "x", "y"))
 
 
 ```
+
+
+##Amy 
+
+# **About the Dashboard**
+This dashboard explores dog breed characteristics and popularity using data from the **TidyTuesday (2022-02-01) Dog Breeds dataset**.  
+
+It includes three main components:
+
+- **Popularity over time:** Choose a breed to see how its AKC ranking has changed from year to year.
+- **Trait vs. Popularity:** Select a trait (e.g., Trainability, Shedding Level) and explore how it relates to breed popularity.
+- **Interactive Data Table:** Browse and filter all breeds and their characteristics.
+
+**How to use the dashboard:**
+- Use the **breed dropdown** to select a breed for the time-trend plot.
+- Use the **trait dropdown** to choose which trait to compare against AKC rank.
+- Use the interactive table filters to compare breeds.
 
 
 
