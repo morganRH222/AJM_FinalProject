@@ -67,6 +67,34 @@ trait_desc_clean <- trait_description %>%
   filter(Trait %in% unique(trait_long$Trait)) %>%  # keep only numeric traits
   select(Trait, Trait_1, Trait_5, Description)
 
+# Summary statistics --------------------------------------------------------
+
+total_breeds <- breed_traits %>% 
+  distinct(Breed) %>% 
+  nrow()
+
+most_popular_2020 <- breed_rank %>%
+  filter(`2020 Rank` == 1) %>%
+  pull(Breed)
+
+# Calculate biggest rank improvement (rank going DOWN is better)
+biggest_improver <- breed_rank %>%
+  mutate(rank_change = `2013 Rank` - `2020 Rank`) %>%
+  arrange(desc(rank_change)) %>%
+  slice(1) %>%
+  pull(Breed)
+
+biggest_improvement <- breed_rank %>%
+  mutate(rank_change = `2013 Rank` - `2020 Rank`) %>%
+  arrange(desc(rank_change)) %>%
+  slice(1) %>%
+  pull(rank_change)
+
+# Correlation matrix for traits
+trait_cor <- breed_traits %>%
+  select(where(is.numeric)) %>%
+  cor(use = "pairwise.complete.obs")
+
 ```
 
 🏆 OVERVIEW 🏆
@@ -104,7 +132,7 @@ tags$div(
 
 This flexdashboard explores American Kennel Club (AKC) data on dog breeds:
 
-- **Breed popularity over time (2013–2020)** based on yearly AKC rank.  
+- **Breed popularity over time (2013–2020)** based on yearly AKC rank (1 = most popular).  
 - **Behavior and care traits** such as affection, energy level, shedding, trainability, etc.  
 - **Trait definitions** to help interpret the 1–5 scores (1 = low, 5 = high).
 
