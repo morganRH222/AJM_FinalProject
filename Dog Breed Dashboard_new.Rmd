@@ -240,7 +240,7 @@ renderPlotly({
     scale_fill_viridis_c(option = "H") +
     scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
     labs(
-      x = "Average Score",
+      x = "Average Trait Score (0–5)",
       y = "",
       title = "Mean trait scores across all dog breeds"
     ) +
