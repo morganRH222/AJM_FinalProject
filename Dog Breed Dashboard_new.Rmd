@@ -181,7 +181,7 @@ datatable(
 📊 SUMMARY 📊
 =====================================
 
-Column {data-width=100}
+Column {data-width=25}
 -----------------------------------------------------------------------
 
 ### Total Breeds in Dataset
@@ -217,7 +217,7 @@ renderValueBox({
 })
 ```
 
-Column {data-width=50}
+Column {data-width=37.5}
 -----------------------------------------------------------------------
 
 ### 📈 Average Trait Scores Across All Breeds
@@ -248,7 +248,7 @@ renderPlotly({
 })
 ```
 
-Column {data-width=50}
+Column {data-width=37.5}
 -----------------------------------------------------------------------
 
 ### 📊 Distribution of Trait Scores
@@ -725,7 +725,6 @@ renderPlotly({
 ### 📋 Strongest Correlations
 ```{r}
 renderDT({
-  # Get upper triangle of correlation matrix (avoid duplicates)
   trait_cor_long <- trait_cor %>%
     as.data.frame() %>%
     rownames_to_column("Trait1") %>%
@@ -734,7 +733,7 @@ renderDT({
       names_to = "Trait2",
       values_to = "Correlation"
     ) %>%
-    filter(Trait1 != Trait2) %>%  # remove self-correlations
+    filter(Trait1 != Trait2) %>%  
     mutate(pair = paste(pmin(Trait1, Trait2), pmax(Trait1, Trait2), sep = " - ")) %>%
     distinct(pair, .keep_all = TRUE) %>%
     select(Trait1, Trait2, Correlation) %>%
@@ -745,7 +744,7 @@ renderDT({
     trait_cor_long,
     options = list(
       pageLength = 10,
-      dom = 't'  # just show table, no other controls
+      dom = 't'  
     ),
     caption = "Top 10 strongest correlations between traits (positive or negative)"
   ) %>%
