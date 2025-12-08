@@ -190,8 +190,8 @@ renderValueBox({
   valueBox(
     value = total_breeds,
     icon = "fa-dog",
-    color = "#8C5A3C", 
-    width = 20
+    color = "#8C5A3C",  
+    width = 6
   )
 })
 ```
@@ -202,7 +202,8 @@ renderValueBox({
   valueBox(
     value = most_popular_2020,
     icon = "fa-trophy",
-    color = "#D4A574"
+    color = "#D4A574",
+    width = 20
   )
 })
 ```
@@ -213,7 +214,8 @@ renderValueBox({
   valueBox(
     value = paste(biggest_improver, "(+", biggest_improvement, "spots)"),
     icon = "fa-arrow-up",
-    color = "#6B8E23"
+    color = "#6B8E23",
+    width = 20
   )
 })
 ```
