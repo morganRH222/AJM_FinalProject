@@ -241,7 +241,7 @@ renderPlotly({
     scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
     labs(
       x = "Average Score",
-      y = "Trait",
+      y = "",
       title = "Mean trait scores across all dog breeds"
     ) +
     theme_minimal() +
