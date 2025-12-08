@@ -191,7 +191,7 @@ renderValueBox({
     value = total_breeds,
     icon = "fa-dog",
     color = "#8C5A3C",  
-    width = 6
+    width = 20
   )
 })
 ```
