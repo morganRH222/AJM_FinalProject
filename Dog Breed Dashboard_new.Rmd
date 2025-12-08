@@ -229,13 +229,13 @@ renderPlotly({
   trait_avg <- trait_long %>%
     group_by(Trait) %>%
     summarise(
-      avg_score = mean(Score, na.rm = TRUE),
+      avg_trait_score = mean(Score, na.rm = TRUE),
       .groups = "drop"
     ) %>%
-    arrange(avg_score) %>%
+    arrange(avg_trait_score) %>%
     mutate(Trait = factor(Trait, levels = Trait))
   
-  p <- ggplot(trait_avg, aes(x = avg_score, y = Trait, fill = avg_score)) +
+  p <- ggplot(trait_avg, aes(x = avg_trait_score, y = Trait, fill = avg_trait_score)) +
     geom_col() +
     scale_fill_viridis_c(option = "H") +
     scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
@@ -247,7 +247,7 @@ renderPlotly({
     theme_minimal() +
     theme(legend.position = "none")
   
-  ggplotly(p, tooltip = c("Trait", "avg_score"))
+  ggplotly(p, tooltip = c("Trait", "avg_trait_score"))
 })
 ```
 
