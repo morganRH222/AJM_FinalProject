@@ -1,5 +1,5 @@
 ---
-title: "🐶 Dog Breeds Dashboard 🐶"
+title: "🐶 Dog Breeds Dashboard"
 author: "Jeffrey Gonzales, Morgan Hertel, Amy Gill"
 output:
   flexdashboard::flex_dashboard:
@@ -97,7 +97,7 @@ trait_cor <- breed_traits %>%
 
 ```
 
-🏆 OVERVIEW 🏆
+📝 OVERVIEW 
 =====================================
 
 Column {data-width=45}
@@ -178,7 +178,7 @@ datatable(
 ```
 
 
-📊 SUMMARY 📊
+📊 SUMMARY
 =====================================
 
 Column {data-width=25}
@@ -274,7 +274,7 @@ renderPlotly({
 ```
 
 
-**📊 POPULARITY 📊**
+**🏆 POPULARITY**
 =====================================
 
 
@@ -282,7 +282,7 @@ renderPlotly({
 Column {data-width=340 .sidebar}
 -----------------------------------------------------------------------
 
-### **🐩  BREED SELECTION 🐾**
+### **🐩  BREED SELECTION**
 
 ```{r}
 inputPanel(
@@ -290,7 +290,7 @@ inputPanel(
     inputId  = "breed_select",
     label    = "Please select breed(s) to compare:",
     choices  = sort(unique(rank_long$Breed)),
-    selected = c("Retrievers (Labrador)"),
+    selected = c("Retrievers (Labrador)", "French Bulldogs"),
     multiple = TRUE
   ),
   actionButton(
@@ -306,13 +306,13 @@ observeEvent(input$reset_breeds, {
   updateSelectInput(
     session,
     "breed_select",
-    selected = c("Retrievers (Labrador)")  # reset to defaults
+    selected = c("Retrievers (Labrador)", "French Bulldogs")  # reset to defaults
     # or use selected = character(0) to clear everything
   )
 })
 ```
 
-### **🐶 SELECTED BREED 🐶**
+### **🐶 SELECTED BREED**
 
 ```{r}
 
@@ -357,7 +357,7 @@ renderUI({
 
 Column {data-width=55}
 -----------------------------------------------------------------------
-### **🐕 POPULARITY RANK TRENDS 📈**
+### **📈 POPULARITY RANK TRENDS**
 
 ```{r}
 
@@ -490,9 +490,30 @@ renderUI({
 
 ```
 
+```{r echo=FALSE}
+tags$div(
+  style = "
+    text-align: center;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  ",
+  tags$img(
+    src = "https://i.pinimg.com/1200x/57/78/c3/5778c3d047015bd9996fa884b53ea1a9.jpg",
+    style = "
+      max-width: 100%;
+      height: auto;
+      border-radius: 0;
+      box-shadow: none;
+      display: block;
+      margin: 0 auto;
+    "
+  )
+)
+```
 
 
-**🐩 BREED TRAITS EXPLORER 🐕**
+**🔍 BREED TRAITS EXPLORER **
 =====================================
 
 Column {data-width=550 .sidebar}
@@ -628,10 +649,10 @@ datatable(
 ```
 
 
-🔗 TRAIT CORRELATION 🔗
+**🔗 TRAIT CORRELATION**
 =====================================
 
-Column {data-width=60}
+Column {data-width=60 .tabset}
 -----------------------------------------------------------------------
 
 ### 🌡️ Trait Correlation Heatmap
@@ -673,55 +694,6 @@ renderPlotly({
 })
 ```
 
-Column {data-width=40}
------------------------------------------------------------------------
-
-### 🔍 Select Traits to Explore Correlation
-```{r}
-selectInput(
-  inputId = "trait_x",
-  label = "Select X-axis trait:",
-  choices = colnames(trait_cor),
-  selected = "Affectionate With Family"
-)
-
-selectInput(
-  inputId = "trait_y",
-  label = "Select Y-axis trait:",
-  choices = colnames(trait_cor),
-  selected = "Good With Young Children"
-)
-```
-
-### 📉 Scatterplot: Selected Traits
-```{r}
-renderPlotly({
-  req(input$trait_x, input$trait_y)
-  
-  df <- breed_traits %>%
-    select(Breed, 
-           x_trait = all_of(input$trait_x), 
-           y_trait = all_of(input$trait_y))
-  
-  # Calculate correlation for these two traits
-  cor_value <- cor(df$x_trait, df$y_trait, use = "complete.obs")
-  
-  p <- ggplot(df, aes(x = x_trait, y = y_trait, text = Breed)) +
-    geom_jitter(width = 0.1, height = 0.1, alpha = 0.6, color = "#8C5A3C", size = 2) +
-    geom_smooth(method = "lm", se = TRUE, color = "#D4A574", fill = "#D4A574", alpha = 0.2) +
-    scale_x_continuous(breaks = 1:5) +
-    scale_y_continuous(breaks = 1:5) +
-    labs(
-      x = input$trait_x,
-      y = input$trait_y,
-      title = paste0("Correlation: ", round(cor_value, 3))
-    ) +
-    theme_minimal()
-  
-  ggplotly(p, tooltip = c("text", "x", "y"))
-})
-```
-
 ### 📋 Strongest Correlations
 ```{r}
 renderDT({
@@ -758,3 +730,183 @@ renderDT({
     )
 })
 ```
+
+Column {data-width=40}
+-----------------------------------------------------------------------
+
+### 🔍 Select Traits to Explore Correlation
+```{r}
+fluidRow(
+  column(
+    width = 6,
+    selectInput(
+      inputId  = "trait_x",
+      label    = "Select X-axis trait:",
+      choices  = colnames(trait_cor),
+      selected = "Affectionate With Family"
+    )
+  ),
+  column(
+    width = 6,
+    selectInput(
+      inputId  = "trait_y",
+      label    = "Select Y-axis trait:",
+      choices  = colnames(trait_cor),
+      selected = "Good With Young Children"
+    )
+  )
+)
+```
+
+
+🐶 BREED IMAGE ON HOVER
+```{r}
+
+renderUI({
+  # Hover event from this specific scatterplot
+  d <- plotly::event_data("plotly_hover", source = "trait_scatter")
+
+  # If nothing is hovered yet
+  if (is.null(d) || nrow(d) == 0) {
+    return(
+      tags$div(
+        style = "
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          width: 100%;
+          text-align: center;
+        ",
+        tags$p("Hover over a point in the scatterplot to see the breed image here.")
+      )
+    )
+  }
+
+  # Breed name from 'key' we set in aes(key = Breed)
+  breed_hovered <- d$key[1]
+
+  # Look up image URL for this breed
+  img_url <- breed_images %>%
+    dplyr::filter(Breed == breed_hovered) %>%
+    dplyr::pull(ColorImageURL) %>%
+    .[1]
+
+  if (is.null(img_url) || is.na(img_url) || length(img_url) == 0) {
+    return(
+      tags$div(
+        style = "
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          width: 100%;
+          text-align: center;
+        ",
+        tags$p(paste("No image available yet for", breed_hovered))
+      )
+    )
+  }
+
+  # Image fills pane + name overlay at bottom center
+  tags$div(
+    style = "
+      position: relative;
+      height: 100%;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+    ",
+    tags$img(
+      src = img_url,
+      style = "
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        display: block;
+      ",
+      alt = breed_hovered
+    ),
+    tags$div(
+      breed_hovered,
+      style = "
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0,0,0,0.6);
+        color: #FFF;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.85em;
+        font-weight: 600;
+        white-space: nowrap;
+      "
+    )
+  )
+})
+
+```
+
+
+### 📉 Scatterplot: Selected Traits
+
+```{r}
+renderPlotly({
+  req(input$trait_x, input$trait_y)
+  
+  df <- breed_traits %>%
+    dplyr::select(
+      Breed, 
+      x_trait = dplyr::all_of(input$trait_x), 
+      y_trait = dplyr::all_of(input$trait_y)
+    )
+  
+  # Calculate correlation for these two traits
+  cor_value <- cor(df$x_trait, df$y_trait, use = "complete.obs")
+  
+  p <- ggplot(
+    df,
+    aes(
+      x    = x_trait,
+      y    = y_trait,
+      text = Breed,   # used in tooltip
+      key  = Breed    # used for hover image lookup
+    )
+  ) +
+    geom_jitter(
+      width  = 0.1,
+      height = 0.1,
+      alpha  = 0.6,
+      color  = "#8C5A3C",
+      size   = 2
+    ) +
+    geom_smooth(
+      method = "lm",
+      se     = TRUE,
+      color  = "#D4A574",
+      fill   = "#D4A574",
+      alpha  = 0.2
+    ) +
+    scale_x_continuous(breaks = 1:5) +
+    scale_y_continuous(breaks = 1:5) +
+    labs(
+      x     = input$trait_x,
+      y     = input$trait_y,
+      title = paste0("Correlation: ", round(cor_value, 3))
+    ) +
+    theme_minimal()
+  
+  ggplotly(
+    p,
+    tooltip = c("text", "x", "y"),
+    source  = "trait_scatter"   # match the source used in event_data()
+  )
+})
+```
+
+
+
