@@ -244,7 +244,10 @@ renderPlotly({
       y = "",
       title = "Mean trait scores across all dog breeds") +
     theme_minimal() +
-    theme(legend.position = "none")
+    theme(legend.position = "none", 
+      axis.title.x = element_text(size = 16),
+      axis.title.y = element_text(size = 16), 
+      plot.title = element_text(size = 20))
   
   ggplotly(p, tooltip = c("Trait", "avg_trait_score"))})
 ```
