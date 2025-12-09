@@ -123,24 +123,32 @@ tags$div(
       border-radius: 0;
       box-shadow: none;
       display: block;
-    "
-  )
-)
+    "))
 ```
 
 ### 🐾 ABOUT THIS DASHBOARD 🐾
+This flexdashboard provides an interactive exploration of dog breed information compiled from the American Kennel Club (AKC). It highlights two major dimensions of breed data—popularity trends and behavioral/care traits—and presents them in a format designed to help users compare breeds, understand key characteristics, and interpret trait scoring.
 
-This flexdashboard explores American Kennel Club (AKC) data on dog breeds:
+What this dashboard includes:
 
-- **Breed popularity over time (2013–2020)** based on yearly AKC rank (1 = most popular).  
-- **Behavior and care traits** such as affection, energy level, shedding, trainability, etc.  
-- **Trait definitions** to help interpret the 1–5 scores (1 = low, 5 = high).
+- **Breed popularity over time (2013–2020)**
+Visualizes each breed’s AKC popularity ranking over time (with Rank 1 representing the most popular breed). Users can track long-term trends, spot sudden shifts in ranking, and compare multiple breeds side by side.
 
-Use the tabs and interactive plots to:
+- **Behavior and care traits**
+Displays breed scores (1–5 scale) on traits such as affection level, energy level, trainability, shedding, barking, and more. These trait profiles help illustrate what living with each breed is typically like.
 
-- Compare how popular a breed has been over recent years.  
-- Explore the profile of each breed across different traits.  
-- Look up what each trait score actually means.
+- **Trait definitions**
+Provides clear explanations of what each numerical trait score represents, helping users interpret whether a rating of “2” or “5” corresponds to a low, moderate, or high expression of that trait.
+
+How to use the dashboard:
+
+- Navigate across tabs to explore popularity charts, trait radar plots, and reference definitions.
+
+- Interact with the visualizations to compare breeds, filter by specific years, or examine individual trait profiles.
+
+- Use the definitions tab whenever you need clarity on what a trait score means in real-world behavior or care expectations.
+
+
 
 Column {data-width=55}
 -----------------------------------------------------------------------
