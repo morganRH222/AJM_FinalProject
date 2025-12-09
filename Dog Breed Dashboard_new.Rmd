@@ -231,8 +231,7 @@ renderPlotly({
     group_by(Trait) %>%
     summarise(
       avg_trait_score = mean(Score, na.rm = TRUE),
-      .groups = "drop"
-    ) %>%
+      .groups = "drop") %>%
     arrange(avg_trait_score) %>%
     mutate(Trait = factor(Trait, levels = Trait))
   
@@ -243,13 +242,11 @@ renderPlotly({
     labs(
       x = "Average Trait Score (0–5)",
       y = "",
-      title = "Mean trait scores across all dog breeds"
-    ) +
+      title = "Mean trait scores across all dog breeds") +
     theme_minimal() +
     theme(legend.position = "none")
   
-  ggplotly(p, tooltip = c("Trait", "avg_trait_score"))
-})
+  ggplotly(p, tooltip = c("Trait", "avg_trait_score"))})
 ```
 
 Column {data-width=37.5}
