@@ -263,7 +263,7 @@ Column {data-width=37.5}
 renderPlotly({
   p <- ggplot(trait_long, aes(x = Score)) +
     geom_histogram(bins = 5, fill = "#8C5A3C", color = "#4A2C2A", alpha = 0.7) +
-    facet_wrap(~ Trait, ncol = 3) +
+    facet_wrap(~ Trait, ncol = 4) +
     scale_x_continuous(breaks = 1:5) +
     labs(
       x = "Score",
