@@ -198,9 +198,7 @@ renderValueBox({
     value = total_breeds,
     icon = "fa-dog",
     color = "#8C5A3C",  
-    width = 20
-  )
-})
+    width = 20)})
 ```
 
 ### Most Popular Breed (2020)
@@ -210,9 +208,7 @@ renderValueBox({
     value = most_popular_2020,
     icon = "fa-trophy",
     color = "#D4A574",
-    width = 20
-  )
-})
+    width = 20)})
 ```
 
 ### Biggest Rank Improvement (2013-2020)
@@ -222,9 +218,7 @@ renderValueBox({
     value = paste(biggest_improver, "(+", biggest_improvement, "spots)"),
     icon = "fa-arrow-up",
     color = "#6B8E23",
-    width = 20
-  )
-})
+    width = 20)})
 ```
 
 Column {data-width=37.5}
