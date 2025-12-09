@@ -188,7 +188,7 @@ datatable(
 📊 SUMMARY 📊
 =====================================
 
-Column {data-width=25}
+Column {data-width=15}
 -----------------------------------------------------------------------
 
 ### Total Breeds in Dataset
@@ -224,7 +224,7 @@ renderValueBox({
 })
 ```
 
-Column {data-width=37.5}
+Column {data-width=42.5}
 -----------------------------------------------------------------------
 
 ### 📈 Average Trait Scores Across All Breeds
@@ -255,7 +255,7 @@ renderPlotly({
 })
 ```
 
-Column {data-width=37.5}
+Column {data-width=42.5}
 -----------------------------------------------------------------------
 
 ### 📊 Distribution of Trait Scores
@@ -263,7 +263,7 @@ Column {data-width=37.5}
 renderPlotly({
   p <- ggplot(trait_long, aes(x = Score)) +
     geom_histogram(bins = 5, fill = "#8C5A3C", color = "#4A2C2A", alpha = 0.7) +
-    facet_wrap(~ Trait, ncol = 4) +
+    facet_wrap(~ Trait, ncol = 3) +
     scale_x_continuous(breaks = 1:5) +
     labs(
       x = "Score",
@@ -274,7 +274,7 @@ renderPlotly({
     theme(
       strip.text = element_text(size = 8, face = "bold"),
       axis.text = element_text(size = 7),
-      panel.spacing = unit(1, "lines")  # adds more space between facets so axis labels fit
+      panel.spacing = unit(1, "lines")
     )
   
   ggplotly(p)
