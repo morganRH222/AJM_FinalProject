@@ -185,7 +185,7 @@ datatable(
 ```
 
 
-📊 SUMMARY
+📊 SUMMARY 📊
 =====================================
 
 Column {data-width=25}
@@ -197,8 +197,9 @@ renderValueBox({
   valueBox(
     value = total_breeds,
     icon = "fa-dog",
-    color = "#8C5A3C",  
-    width = 20)})
+    color = "#8C5A3C"
+  )
+})
 ```
 
 ### Most Popular Breed (2020)
@@ -207,8 +208,9 @@ renderValueBox({
   valueBox(
     value = most_popular_2020,
     icon = "fa-trophy",
-    color = "#D4A574",
-    width = 20)})
+    color = "#D4A574"
+  )
+})
 ```
 
 ### Biggest Rank Improvement (2013-2020)
@@ -217,8 +219,9 @@ renderValueBox({
   valueBox(
     value = paste(biggest_improver, "(+", biggest_improvement, "spots)"),
     icon = "fa-arrow-up",
-    color = "#6B8E23",
-    width = 20)})
+    color = "#6B8E23"
+  )
+})
 ```
 
 Column {data-width=37.5}
@@ -230,26 +233,26 @@ renderPlotly({
   trait_avg <- trait_long %>%
     group_by(Trait) %>%
     summarise(
-      avg_trait_score = mean(Score, na.rm = TRUE),
-      .groups = "drop") %>%
-    arrange(avg_trait_score) %>%
+      avg_score = mean(Score, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    arrange(avg_score) %>%
     mutate(Trait = factor(Trait, levels = Trait))
   
-  p <- ggplot(trait_avg, aes(x = avg_trait_score, y = Trait, fill = avg_trait_score)) +
+  p <- ggplot(trait_avg, aes(x = avg_score, y = Trait, fill = avg_score)) +
     geom_col() +
     scale_fill_viridis_c(option = "H") +
     scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
     labs(
-      x = "Average Trait Score (0–5)",
-      y = "",
-      title = "Mean trait scores across all dog breeds") +
+      x = "Average Score",
+      y = "Trait",
+      title = "Mean trait scores across all dog breeds"
+    ) +
     theme_minimal() +
-    theme(legend.position = "none", 
-      axis.title.x = element_text(size = 16),
-    axis.title.y = element_text(size = 16), 
-    plot.title = element_text(size = 20)   )
+    theme(legend.position = "none")
   
-  ggplotly(p, tooltip = c("Trait", "avg_trait_score"))})
+  ggplotly(p, tooltip = c("Trait", "avg_score"))
+})
 ```
 
 Column {data-width=37.5}
