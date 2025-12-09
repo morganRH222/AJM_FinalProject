@@ -149,7 +149,6 @@ How to use the dashboard:
 - Use the definitions tab whenever you need clarity on what a trait score means in real-world behavior or care expectations.
 
 
-
 Column {data-width=55}
 -----------------------------------------------------------------------
 ```{r}
