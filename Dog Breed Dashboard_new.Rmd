@@ -188,7 +188,7 @@ datatable(
 📊 SUMMARY 📊
 =====================================
 
-Column {data-width=15}
+Column {data-width=10}
 -----------------------------------------------------------------------
 
 ### Total Breeds in Dataset
@@ -224,7 +224,7 @@ renderValueBox({
 })
 ```
 
-Column {data-width=42.5}
+Column {data-width=45}
 -----------------------------------------------------------------------
 
 ### 📈 Average Trait Scores Across All Breeds
@@ -255,7 +255,7 @@ renderPlotly({
 })
 ```
 
-Column {data-width=42.5}
+Column {data-width=45}
 -----------------------------------------------------------------------
 
 ### 📊 Distribution of Trait Scores
