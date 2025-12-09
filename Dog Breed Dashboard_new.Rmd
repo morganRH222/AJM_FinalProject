@@ -273,7 +273,8 @@ renderPlotly({
     theme_minimal() +
     theme(
       strip.text = element_text(size = 8, face = "bold"),
-      axis.text = element_text(size = 7)
+      axis.text = element_text(size = 7),
+      panel.spacing = unit(1, "lines")  # adds more space between facets so axis labels fit
     )
   
   ggplotly(p)
