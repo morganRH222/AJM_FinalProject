@@ -73,8 +73,16 @@ total_breeds <- breed_traits %>%
   distinct(Breed) %>% 
   nrow()
 
+# Most popular breed in 2020 
 most_popular_2020 <- breed_rank %>%
   filter(`2020 Rank` == 1) %>%
+  pull(Breed)
+
+# Least popular breed in 2020 
+least_popular_2020 <- breed_rank %>%
+  filter(!is.na(`2020 Rank`)) %>%
+  arrange(desc(`2020 Rank`)) %>%  # highest rank = least popular
+  slice(1) %>%
   pull(Breed)
 
 # Calculate biggest rank improvement (rank going DOWN is better)
@@ -89,6 +97,19 @@ biggest_improvement <- breed_rank %>%
   arrange(desc(rank_change)) %>%
   slice(1) %>%
   pull(rank_change)
+
+# Calculate biggest rank decline (rank going UP = less popular)
+biggest_decliner <- breed_rank %>%
+  mutate(rank_drop = `2020 Rank` - `2013 Rank`) %>%  # positive = worse rank
+  arrange(desc(rank_drop)) %>%
+  slice(1) %>%
+  pull(Breed)
+
+biggest_rank_drop <- breed_rank %>%
+  mutate(rank_drop = `2020 Rank` - `2013 Rank`) %>%
+  arrange(desc(rank_drop)) %>%
+  slice(1) %>%
+  pull(rank_drop)
 
 # Correlation matrix for traits
 trait_cor <- breed_traits %>%
@@ -123,31 +144,37 @@ tags$div(
       border-radius: 0;
       box-shadow: none;
       display: block;
-    "))
+    "
+  )
+)
 ```
 
-### 🐾 ABOUT THIS DASHBOARD 🐾
-This flexdashboard provides an interactive exploration of dog breed information compiled from the American Kennel Club (AKC). It highlights two major dimensions of breed data—popularity trends and behavioral/care traits—and presents them in a format designed to help users compare breeds, understand key characteristics, and interpret trait scoring.
+### **🐾 ABOUT THIS DASHBOARD 🐾**
 
-What this dashboard includes:
+This interactive flexdashboard uses American Kennel Club (AKC) data to explore dog breeds from three main angles:
 
-- **Breed popularity over time (2013–2020)**
-Visualizes each breed’s AKC popularity ranking over time (with Rank 1 representing the most popular breed). Users can track long-term trends, spot sudden shifts in ranking, and compare multiple breeds side by side.
+- **Popularity over time (2013–2020)** using yearly AKC ranks (1 = most popular).  
+- **Behavior, care, and suitability traits** scored from 1 (low) to 5 (high).
+- **Trait definitions** to help interpret the 1–5 scores (1 = low, 5 = high).
+- **Relationships between traits**, such as which characteristics tend to go together.
 
-- **Behavior and care traits**
-Displays breed scores (1–5 scale) on traits such as affection level, energy level, trainability, shedding, barking, and more. These trait profiles help illustrate what living with each breed is typically like.
+Across the tabs, you can:
 
-- **Trait definitions**
-Provides clear explanations of what each numerical trait score represents, helping users interpret whether a rating of “2” or “5” corresponds to a low, moderate, or high expression of that trait.
+📝 Overview: Preview AKC popularity ranks (2013–2020) and how rank works (1 = most popular).
 
-How to use the dashboard:
+📊 Summary: See key metrics (total breeds, most/least popular, biggest risers/fallers) plus average trait scores and their distributions.
 
-- Navigate across tabs to explore popularity charts, trait radar plots, and reference definitions.
+🏆 Popularity: Compare popularity trends for selected breeds over time and view their images, including on hover.
 
-- Interact with the visualizations to compare breeds, filter by specific years, or examine individual trait profiles.
+🔍 Breed Traits Explorer: Inspect a single breed’s trait profile (1–5 scores), with sketch, full-color photo, and trait definitions.
 
-- Use the definitions tab whenever you need clarity on what a trait score means in real-world behavior or care expectations.
+🔗 Trait Correlation: Explore a trait correlation heatmap, top correlated trait pairs, and a scatterplot for any two traits with hoverable breed images.
 
+
+Overall, this dashboard is designed to help you:
+- Compare how popular different breeds have been over time.  
+- Understand each breed’s behavioral and care traits in detail.  
+- Discover patterns and relationships among traits across all breeds, with images and interactivity to make the data more intuitive and fun to explore.
 
 Column {data-width=55}
 -----------------------------------------------------------------------
@@ -185,11 +212,25 @@ datatable(
 ```
 
 
-📊 SUMMARY 📊
+📊 SUMMARY
 =====================================
 
-Column {data-width=10}
+Column {data-width=20}
 -----------------------------------------------------------------------
+
+```{r valuebox-css, echo = FALSE, results = "asis"}
+cat('
+<style>
+  /* Make value, caption, and icon text white in all valueBoxes */
+  .value-box .value,
+  .value-box .caption,
+  .value-box .icon {
+    color: #FFFFFF !important;
+  }
+</style>
+')
+```
+
 
 ### Total Breeds in Dataset
 ```{r}
@@ -197,7 +238,7 @@ renderValueBox({
   valueBox(
     value = total_breeds,
     icon = "fa-dog",
-    color = "#8C5A3C"
+    color = "#5E3A24",
   )
 })
 ```
@@ -208,7 +249,18 @@ renderValueBox({
   valueBox(
     value = most_popular_2020,
     icon = "fa-trophy",
-    color = "#D4A574"
+    color = "#B66A2A"
+  )
+})
+```
+
+### Least Popular Breed (2020)
+```{r}
+renderValueBox({
+  valueBox(
+    value = least_popular_2020,
+    icon  = "fa-thumbs-down",
+    color = "#555B6E"   
   )
 })
 ```
@@ -219,12 +271,26 @@ renderValueBox({
   valueBox(
     value = paste(biggest_improver, "(+", biggest_improvement, "spots)"),
     icon = "fa-arrow-up",
-    color = "#6B8E23"
+    color = "#3F7D3C"
   )
 })
 ```
 
-Column {data-width=45}
+### Biggest Rank Drop (2013-2020)
+```{r}
+renderValueBox({
+  valueBox(
+    value = paste(biggest_decliner, "(-", biggest_rank_drop, "spots)"),
+    icon  = "fa-arrow-down",
+    color = "#9B2226"
+  )
+})
+```
+
+
+
+
+Column {data-width=40 .tabset}
 -----------------------------------------------------------------------
 
 ### 📈 Average Trait Scores Across All Breeds
@@ -255,8 +321,6 @@ renderPlotly({
 })
 ```
 
-Column {data-width=45}
------------------------------------------------------------------------
 
 ### 📊 Distribution of Trait Scores
 ```{r}
@@ -273,8 +337,7 @@ renderPlotly({
     theme_minimal() +
     theme(
       strip.text = element_text(size = 8, face = "bold"),
-      axis.text = element_text(size = 7),
-      panel.spacing = unit(1, "lines")
+      axis.text = element_text(size = 7)
     )
   
   ggplotly(p)
@@ -414,13 +477,7 @@ y = "AKC popularity rank (1 = most popular)",
 title = "Popularity rank of selected dog breeds over time",
 color = "Breed"
 ) +
-theme_minimal()+
-    theme(
-      axis.title.x = element_text(size = 16),
-      axis.title.y = element_text(size = 16),
-      axis.text.x  = element_text(size = 14),
-      axis.text.y  = element_text(size = 14)
-    )
+theme_minimal()
 
 ggplotly(
 p,
@@ -666,7 +723,7 @@ datatable(
 **🔗 TRAIT CORRELATION**
 =====================================
 
-Column {data-width=60 .tabset}
+Column {data-width=55 .tabset}
 -----------------------------------------------------------------------
 
 ### 🌡️ Trait Correlation Heatmap
@@ -699,8 +756,8 @@ renderPlotly({
     ) +
     theme_minimal() +
     theme(
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 10, face = "bold"),
-      axis.text.y = element_text(size = 10, face = "bold"),
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+      axis.text.y = element_text(size = 8),
       panel.grid = element_blank()
     )
   
@@ -745,38 +802,11 @@ renderDT({
 })
 ```
 
-Column {data-width=40}
+Column {data-width=45}
 -----------------------------------------------------------------------
 
-### 🔍 Select Traits to Explore Correlation
-```{r}
-fluidRow(
-  column(
-    width = 6,
-    selectInput(
-      inputId  = "trait_x",
-      label    = "Select X-axis trait:",
-      choices  = colnames(trait_cor),
-      selected = "Affectionate With Family"
-    )
-  ),
-  column(
-    width = 6,
-    selectInput(
-      inputId  = "trait_y",
-      label    = "Select Y-axis trait:",
-      choices  = colnames(trait_cor),
-      selected = "Good With Young Children"
-    )
-  )
-)
-```
-
-
-🐶 BREED IMAGE ON HOVER
-```{r}
-
-renderUI({
+```{r breed_image, server=TRUE}
+output$breed_image <- renderUI({
   # Hover event from this specific scatterplot
   d <- plotly::event_data("plotly_hover", source = "trait_scatter")
 
@@ -835,12 +865,14 @@ renderUI({
     tags$img(
       src = img_url,
       style = "
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.2);
-        display: block;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      display: block;
       ",
       alt = breed_hovered
     ),
@@ -862,12 +894,47 @@ renderUI({
     )
   )
 })
-
 ```
 
 
-### 📉 Scatterplot: Selected Traits
+### 🔍 Select Traits to Explore Correlation {data-height=55}
+```{r}
+fluidRow(
+  column(
+    width = 7,
+    tags$div(
+      
+    ),
+    selectInput(
+      inputId  = "trait_x",
+      label    = "Select X-axis trait:",
+      choices  = colnames(trait_cor),
+      selected = "Affectionate With Family"
+    ),
+    selectInput(
+      inputId  = "trait_y",
+      label    = "Select Y-axis trait:",
+      choices  = colnames(trait_cor),
+      selected = "Good With Young Children"
+    )
+  ),
+  column(
+    width = 5,
+    tags$div(
+      "🐶 Breed Image",
+      style = "
+        font-size: 1.0em;
+        font-weight: 600;
+        margin-bottom: 3px;
+      "
+    ),
+    uiOutput("breed_image")
+  )
+)
 
+```
+
+### 📉 Scatterplot: Selected Traits {data-height=45}
 ```{r}
 renderPlotly({
   req(input$trait_x, input$trait_y)
