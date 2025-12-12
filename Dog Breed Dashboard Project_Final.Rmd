@@ -15,6 +15,7 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
+
 # Load packages ------------------------------------------------------------
 library(flexdashboard)
 library(shiny)
@@ -244,6 +245,7 @@ Column {data-width=20}
 -----------------------------------------------------------------------
 
 ```{r valuebox-css, echo = FALSE, results = "asis"}
+
 cat('
 <style>
   # Make value, caption, and icon text white in all valueBoxes
@@ -267,11 +269,13 @@ cat('
   }
 </style>
 ')
+
 ```
 
 
 ### Total Breeds in Dataset
 ```{r}
+
 renderValueBox({
   valueBox(
     value = total_breeds,
@@ -279,10 +283,12 @@ renderValueBox({
     color = "#5E3A24",
   )
 })
+
 ```
 
 ### Most Popular Breed (2020)
 ```{r}
+
 renderValueBox({
   valueBox(
     value = most_popular_2020,
@@ -290,10 +296,12 @@ renderValueBox({
     color = "#B66A2A"
   )
 })
+
 ```
 
 ### Least Popular Breed (2020)
 ```{r}
+
 renderValueBox({
   valueBox(
     value = least_popular_2020,
@@ -301,10 +309,12 @@ renderValueBox({
     color = "#555B6E"   
   )
 })
+
 ```
 
 ### Biggest Rank Improvement (2013-2020)
 ```{r}
+
 renderValueBox({
   valueBox(
     value = paste(biggest_improver, "(+", biggest_improvement, "spots)"),
@@ -312,10 +322,12 @@ renderValueBox({
     color = "#3F7D3C"
   )
 })
+
 ```
 
 ### Biggest Rank Drop (2013-2020)
 ```{r}
+
 renderValueBox({
   valueBox(
     value = paste(biggest_decliner, "(-", biggest_rank_drop, "spots)"),
@@ -323,6 +335,7 @@ renderValueBox({
     color = "#9B2226"
   )
 })
+
 ```
 
 
@@ -417,6 +430,7 @@ Column {data-width=340 .sidebar}
 ### **🐩  BREED SELECTION**
 
 ```{r}
+
 inputPanel(
   selectInput(
     inputId  = "breed_select",
@@ -434,6 +448,7 @@ inputPanel(
 ```
 
 ```{r echo=FALSE}
+
 observeEvent(input$reset_breeds, {
   updateSelectInput(
     session,
@@ -442,6 +457,7 @@ observeEvent(input$reset_breeds, {
     # or use selected = character(0) to clear everything
   )
 })
+
 ```
 
 ### **🐶 SELECTED BREED**
@@ -485,6 +501,7 @@ renderUI({
     })
   )
 })
+
 ```
 
 Column {data-width=55}
@@ -555,12 +572,14 @@ tooltip = c("Breed", "Year", "Rank"),
 source = "pop_plot" # give this plot a source ID
 )
 })
+
 ```
 
 Column {data-width=45}
 -----------------------------------------------------------------------
 🐶 BREED IMAGE ON HOVER
 ```{r}
+
 renderUI({
   # Hover event from this specific plot
   d <- plotly::event_data("plotly_hover", source = "pop_plot")
@@ -632,6 +651,7 @@ renderUI({
 ```
 
 ```{r echo=FALSE}
+
 tags$div(
   style = "
     text-align: center;
@@ -651,6 +671,7 @@ tags$div(
     "
   )
 )
+
 ```
 
 
@@ -900,6 +921,7 @@ renderDT({
       )
     )
 })
+
 ```
 
 Column {data-width=45}
@@ -990,6 +1012,7 @@ output$breed_image <- renderUI({
     )
   )
 })
+
 ```
 
 
