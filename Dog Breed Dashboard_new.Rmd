@@ -7,7 +7,7 @@ output:
     vertical_layout: fill
     theme:
       version: 4
-      bootswatch: journal #options: simplex, journal,cosmo, spacelab
+      bootswatch: journal # some options: simplex, journal,cosmo
       primary: "#8C5A3C"   # warm brown (like a leather collar)
       bg: "#FFF7E6"        # light cream background
       fg: "#4A2C2A"        # dark brown text
@@ -328,7 +328,7 @@ renderValueBox({
 
 
 
-Column {data-width=40 .tabset}
+Column {data-width=80 .tabset}
 -----------------------------------------------------------------------
 
 ### 📈 Average Trait Scores
@@ -682,12 +682,12 @@ selectizeInput(
 
 ```{r}
 
-# show sketch for the selected breed
+# show sketch for the selected breed ------------------------------------------
 
 renderUI({
 req(input$breed_traits_select)
 
-# look up image URL from breed_images
+# look up image URL from breed_images -----------------------------------------
 
 img_url <- breed_images %>%
 dplyr::filter(Breed == input$breed_traits_select) %>%
@@ -698,7 +698,10 @@ tags$p("No image available yet for this breed.")
 } else {
 tags$img(
 src = img_url,
-style = "max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);"
+style = "max-width: 100%; 
+height: auto; 
+border-radius: 10px; 
+box-shadow: 0 0 10px rgba(0,0,0,0.2);"
 )
 }
 })
@@ -709,12 +712,12 @@ style = "max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 10p
 
 ```{r}
 
-# show colored image for the selected breed
+# show colored image for the selected breed -----------------------------------
 
 renderUI({
 req(input$breed_traits_select)
 
-# look up image URL from breed_images
+# look up image URL from breed_images -----------------------------------------
 
 img_url <- breed_images %>%
 dplyr::filter(Breed == input$breed_traits_select) %>%
@@ -725,7 +728,10 @@ tags$p("No image available yet for this breed.")
 } else {
 tags$img(
 src = img_url,
-style = "max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);"
+style = "max-width: 100%; 
+height: auto; 
+border-radius: 10px; 
+box-shadow: 0 0 10px rgba(0,0,0,0.2);"
 )
 }
 })
@@ -745,7 +751,7 @@ renderPlotly({
     dplyr::filter(Breed == input$breed_traits_select) %>%
     dplyr::left_join(trait_desc_clean, by = c("Trait" = "Trait")) %>%
     dplyr::mutate(
-      Trait = factor(Trait, levels = trait_order)  # same global order (low → high)
+      Trait = factor(Trait, levels = trait_order) 
     ) %>%
     dplyr::arrange(Trait)
 
@@ -781,13 +787,13 @@ renderPlotly({
 
 ```{r}
 
-# Show trait descriptions in an interactive table
+# Show trait descriptions in an interactive table -----------------------------
 
 datatable(
   trait_desc_clean,
   options = list(
-    pageLength = 5,          # default rows shown
-    lengthMenu = c(5, 10, 14)  # dropdown options: 5, 10, or 14 traits
+    pageLength = 5,          
+    lengthMenu = c(5, 10, 14) 
   ),
   caption = "What each trait means (1 vs 5 on the scale)."
 )
