@@ -61,6 +61,21 @@ trait_long <- breed_traits %>%
     values_to = "Score"
   )
 
+# Order traits by their mean score (low → high) and define a shared color palette
+trait_summary <- trait_long %>%
+  dplyr::group_by(Trait) %>%
+  dplyr::summarise(
+    avg_score = mean(Score, na.rm = TRUE),
+    .groups   = "drop"
+  ) %>%
+  dplyr::arrange(avg_score)
+
+trait_order <- trait_summary %>% dplyr::pull(Trait)
+
+# One color per trait using viridis
+trait_pal <- viridis::viridis(length(trait_order), option = "H")
+names(trait_pal) <- trait_order
+
 # For trait descriptions, make a helper table to join later -----------------
 
 trait_desc_clean <- trait_description %>%
@@ -295,19 +310,14 @@ Column {data-width=40 .tabset}
 
 ### 📈 Average Trait Scores Across All Breeds
 ```{r}
+
 renderPlotly({
-  trait_avg <- trait_long %>%
-    group_by(Trait) %>%
-    summarise(
-      avg_score = mean(Score, na.rm = TRUE),
-      .groups = "drop"
-    ) %>%
-    arrange(avg_score) %>%
-    mutate(Trait = factor(Trait, levels = Trait))
-  
-  p <- ggplot(trait_avg, aes(x = avg_score, y = Trait, fill = avg_score)) +
+  trait_avg <- trait_summary %>%
+    dplyr::mutate(Trait = factor(Trait, levels = trait_order))
+
+  p <- ggplot(trait_avg, aes(x = avg_score, y = Trait, fill = Trait)) +
     geom_col() +
-    scale_fill_viridis_c(option = "H") +
+    scale_fill_manual(values = trait_pal) +      # shared palette
     scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
     labs(
       x = "Average Score",
@@ -316,18 +326,31 @@ renderPlotly({
     ) +
     theme_minimal() +
     theme(legend.position = "none")
-  
+
   ggplotly(p, tooltip = c("Trait", "avg_score"))
 })
+
 ```
 
 
 ### 📊 Distribution of Trait Scores
 ```{r}
+
 renderPlotly({
-  p <- ggplot(trait_long, aes(x = Score)) +
-    geom_histogram(bins = 5, fill = "#8C5A3C", color = "#4A2C2A", alpha = 0.7) +
+  df <- trait_long %>%
+    dplyr::mutate(
+      # Reverse the global order so facets start with highest-score trait
+      Trait = factor(Trait, levels = rev(trait_order))
+    )
+
+  p <- ggplot(df, aes(x = Score, fill = Trait)) +
+    geom_histogram(
+      bins  = 5,
+      color = "#4A2C2A",
+      alpha = 0.7
+    ) +
     facet_wrap(~ Trait, ncol = 3) +
+    scale_fill_manual(values = trait_pal) +      # same colors as avg plot
     scale_x_continuous(breaks = 1:5) +
     labs(
       x = "Score",
@@ -336,12 +359,15 @@ renderPlotly({
     ) +
     theme_minimal() +
     theme(
-      strip.text = element_text(size = 8, face = "bold"),
-      axis.text = element_text(size = 7)
+      strip.text      = element_text(size = 8, face = "bold"),
+      axis.text       = element_text(size = 7),
+      legend.position = "none"
     )
-  
+
   ggplotly(p)
 })
+
+
 ```
 
 
@@ -674,19 +700,15 @@ renderPlotly({
 
   df <- trait_long %>%
     dplyr::filter(Breed == input$breed_traits_select) %>%
-    dplyr::left_join(trait_desc_clean, by = c("Trait" = "Trait"))
-
-  df <- df %>%
-    dplyr::arrange(Score) %>%
-    dplyr::mutate(Trait = factor(Trait, levels = Trait))
-
-  n_traits <- length(levels(df$Trait))
-  
-  pal <- viridis::viridis(n_traits, option = "H") #color pallete (change letter D or H is my preference)
+    dplyr::left_join(trait_desc_clean, by = c("Trait" = "Trait")) %>%
+    dplyr::mutate(
+      Trait = factor(Trait, levels = trait_order)  # same global order (low → high)
+    ) %>%
+    dplyr::arrange(Trait)
 
   p <- ggplot(df, aes(x = Score, y = Trait, fill = Trait)) +
     geom_col() +
-    scale_fill_manual(values = pal) +   # use palette here
+    scale_fill_manual(values = trait_pal) +   # same palette as other plots
     guides(fill = "none") +
     scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
     labs(
@@ -852,44 +874,39 @@ output$breed_image <- renderUI({
     )
   }
 
-  # Image fills pane + name overlay at bottom center
+  # Image with name centered just below it
   tags$div(
     style = "
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       height: 100%;
       width: 100%;
       padding: 0;
       margin: 0;
-      overflow: hidden;
     ",
     tags$img(
       src = img_url,
       style = "
-      max-width: 100%;
-      max-height: 100%;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      display: block;
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        display: block;
       ",
       alt = breed_hovered
     ),
     tags$div(
       breed_hovered,
       style = "
-        position: absolute;
-        bottom: 8px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: rgba(0,0,0,0.6);
-        color: #FFF;
-        padding: 4px 10px;
-        border-radius: 999px;
-        font-size: 0.85em;
+        margin-top: 6px;
+        font-size: 0.9em;
         font-weight: 600;
-        white-space: nowrap;
+        text-align: center;
       "
     )
   )
