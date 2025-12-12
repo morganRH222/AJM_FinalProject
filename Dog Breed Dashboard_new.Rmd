@@ -482,24 +482,22 @@ Column {data-width=55}
 renderPlotly({
 req(input$breed_select)
 
-#Filter for selected breeds and join image info (if needed later)
+#Filter for selected breeds and join image info -------------------------------
 
 df <- rank_long %>%
 dplyr::filter(Breed %in% input$breed_select) %>%
 dplyr::left_join(breed_images, by = "Breed")
 
-#If nothing left after filtering, bail out gracefully
-
 if (nrow(df) == 0) {
 return(NULL)
 }
 
-#Determine an adaptive upper limit for the rank axis
+#Determine an adaptive upper limit for the rank axis --------------------------
 
 max_rank_sel <- max(df$Rank, na.rm = TRUE)
 upper_limit <- max(20, max_rank_sel)
 
-#Choose nice breaks (every 5 ranks)
+#Choose nice breaks (every 5 ranks) -------------------------------------------
 
 breaks_y <- seq(1, upper_limit, by = 5)
 
@@ -521,10 +519,21 @@ breaks = breaks_y
 labs(
 x = "Year",
 y = "AKC popularity rank (1 = most popular)",
-title = "Popularity rank of selected dog breeds over time",
+title = "Popularity Rank of Selected Dog Breeds Over Time",
 color = "Breed"
 ) +
-theme_minimal()
+theme_minimal() +
+    theme(
+      axis.title.x = element_text(size = 12, face = "bold"),
+      axis.title.y = element_text(size = 12, face = "bold"),
+      axis.text.x  = element_text(size = 10),
+      axis.text.y  = element_text(size = 10),
+      plot.title   = element_text(
+        hjust = 0.5,
+        face  = "bold",
+        size  = 14
+      )
+    )
 
 ggplotly(
 p,
