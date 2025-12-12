@@ -318,7 +318,7 @@ renderValueBox({
 Column {data-width=40 .tabset}
 -----------------------------------------------------------------------
 
-### 📈 Average Trait Scores Across All Breeds
+### 📈 Average Trait Scores
 ```{r}
 
 renderPlotly({
@@ -331,10 +331,23 @@ renderPlotly({
     scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
     labs(
       x = "Average Score",
+      y = NULL,
       title = "Average trait scores across all dog breeds"
     ) +
     theme_minimal() +
-    theme(legend.position = "none")
+    theme(
+      legend.position = "none",
+      plot.title      = element_text(
+        hjust = 0.5,   # center title
+        face  = "bold",
+        size = 12
+      ),
+       axis.text.y = element_text(
+        size = 11,      
+        face = "bold"
+      ),
+      axis.text.x = element_text(size = 10)
+    )
 
   ggplotly(p, tooltip = c("Trait", "avg_score"))
 })
@@ -342,7 +355,7 @@ renderPlotly({
 ```
 
 
-### 📊 Distribution of Trait Scores
+### 📊 Trait Scores Distribution
 ```{r}
 
 renderPlotly({
