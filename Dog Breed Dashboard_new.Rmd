@@ -222,7 +222,7 @@ datatable(
     scrollCollapse = TRUE,          # collapse if fewer rows
     dom = "lfrtip"                  # keep length, filter, table, info, paging
   ),
-  caption = "Sample of dog breeds with popularity rank (lower = more popular)."
+  caption = "Sample of Dog Breeds with Popularity Rank (lower = more popular)."
 ) %>%
   DT::formatStyle(
     columns = names(df_preview),
@@ -345,7 +345,7 @@ renderPlotly({
     labs(
       x = "Average Score",
       y = NULL,
-      title = "Average trait scores across all dog breeds"
+      title = "Average Trait Scores Across All Dog Breeds"
     ) +
     theme_minimal() +
     theme(
@@ -359,7 +359,8 @@ renderPlotly({
         size = 11,      
         face = "bold"
       ),
-      axis.text.x = element_text(size = 10)
+      axis.text.x = element_text(size = 11),
+      axis.title.x = element_text(size = 12, face = "bold")
     )
 
   ggplotly(p, tooltip = c("Trait", "avg_score"))
@@ -390,7 +391,7 @@ renderPlotly({
     labs(
       x = "Score",
       y = "Number of Breeds",
-      title = "Distribution of scores for each trait"
+      title = "Distribution of Scores for Each Trait"
     ) +
     theme_minimal() +
     theme(
