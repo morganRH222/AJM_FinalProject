@@ -246,11 +246,24 @@ Column {data-width=20}
 ```{r valuebox-css, echo = FALSE, results = "asis"}
 cat('
 <style>
-  /* Make value, caption, and icon text white in all valueBoxes */
+  # Make value, caption, and icon text white in all valueBoxes
   .value-box .value,
   .value-box .caption,
   .value-box .icon {
     color: #FFFFFF !important;
+  }
+
+  # Make all valueBoxes share equal height and fill the pane
+  .shiny-valuebox .value-box {
+    height: 18vh;                 # 5 boxes ≈ full column height
+    display: flex;
+    flex-direction: column;
+    justify-content: center;      # vertically center value + caption + icon
+  }
+
+  /* Optional: smaller gap between boxes */
+  .shiny-valuebox {
+    margin-bottom: 4px;
   }
 </style>
 ')
@@ -742,12 +755,22 @@ renderPlotly({
     guides(fill = "none") +
     scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
     labs(
-      x = "Score (1 = low, 5 = high)",
-      y = "Trait", 
+      x = "SCORE(1 = low, 5 = high)",
+      y = NULL, 
       title = paste("Trait profile for", input$breed_traits_select)
     ) +
     theme_minimal() +
-    theme(legend.position = "none")
+    theme(
+      legend.position = "none",
+      axis.text.y = element_text(size = 10, face = "bold"),
+      axis.text.x = element_text(size = 12, face = "bold"),
+      axis.title.x  = element_text(size = 12, face = "bold"),
+      plot.title  = element_text(
+        hjust = 0.5,
+        face  = "bold",
+        size  = 14
+      )
+    )
 
   ggplotly(p, tooltip = c("Trait", "Score"))
 })
