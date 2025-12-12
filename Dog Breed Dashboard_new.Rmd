@@ -531,7 +531,7 @@ breaks = breaks_y
 ) +
 labs(
 x = "Year",
-y = "AKC popularity rank (1 = most popular)",
+y = "AKC Popularity Rank (1 = most popular)",
 title = "Popularity Rank of Selected Dog Breeds Over Time",
 color = "Breed"
 ) +
@@ -762,7 +762,7 @@ renderPlotly({
     theme_minimal() +
     theme(
       legend.position = "none",
-      axis.text.y = element_text(size = 10, face = "bold"),
+      axis.text.y = element_text(size = 12, face = "bold"),
       axis.text.x = element_text(size = 12, face = "bold"),
       axis.title.x  = element_text(size = 12, face = "bold"),
       plot.title  = element_text(
@@ -803,8 +803,9 @@ Column {data-width=55 .tabset}
 
 ### 🌡️ Trait Correlation Heatmap
 ```{r}
+
 renderPlotly({
-  # Convert correlation matrix to long format for ggplot
+  # Convert correlation matrix to long format for ggplot ----------------------
   trait_cor_long <- trait_cor %>%
     as.data.frame() %>%
     rownames_to_column("Trait1") %>%
@@ -827,21 +828,38 @@ renderPlotly({
     labs(
       x = "",
       y = "",
-      title = "Correlation between dog breed traits"
+      title = "Correlation Between Dog Breed Traits"
     ) +
     theme_minimal() +
-    theme(
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
-      axis.text.y = element_text(size = 8),
-      panel.grid = element_blank()
+   theme(
+      axis.text.x = element_text(
+        angle = 45,
+        hjust = 1,
+        size  = 12,
+        face  = "bold"
+      ),
+      axis.text.y = element_text(
+        hjust = 1,
+        size = 12,
+        face = "bold"
+      ),
+      panel.grid = element_blank(),
+      # title – centered, bold, larger
+      plot.title = element_text(
+        hjust = 0.5,
+        face  = "bold",
+        size  = 14
+      )
     )
   
   ggplotly(p, tooltip = c("Trait1", "Trait2", "Correlation"))
 })
+
 ```
 
 ### 📋 Strongest Correlations
 ```{r}
+
 renderDT({
   trait_cor_long <- trait_cor %>%
     as.data.frame() %>%
@@ -881,11 +899,12 @@ Column {data-width=45}
 -----------------------------------------------------------------------
 
 ```{r breed_image, server=TRUE}
+
 output$breed_image <- renderUI({
-  # Hover event from this specific scatterplot
+  # Hover event from this specific scatterplot --------------------------------
   d <- plotly::event_data("plotly_hover", source = "trait_scatter")
 
-  # If nothing is hovered yet
+  # If nothing is hovered yet -------------------------------------------------
   if (is.null(d) || nrow(d) == 0) {
     return(
       tags$div(
@@ -902,7 +921,7 @@ output$breed_image <- renderUI({
     )
   }
 
-  # Breed name from 'key' we set in aes(key = Breed)
+  # Breed name from 'key' we set in aes(key = Breed) --------------------------
   breed_hovered <- d$key[1]
 
   # Look up image URL for this breed
@@ -927,7 +946,7 @@ output$breed_image <- renderUI({
     )
   }
 
-  # Image with name centered just below it
+  # Image with name centered just below it ------------------------------------
   tags$div(
     style = "
       display: flex;
@@ -969,6 +988,7 @@ output$breed_image <- renderUI({
 
 ### 🔍 Select Traits to Explore Correlation {data-height=40}
 ```{r}
+
 fluidRow(
   column(
     width = 7,
@@ -1006,6 +1026,7 @@ fluidRow(
 
 ### 📉 Scatterplot: Selected Traits {data-height=60}
 ```{r}
+
 renderPlotly({
   req(input$trait_x, input$trait_y)
   
@@ -1057,6 +1078,7 @@ renderPlotly({
     source  = "trait_scatter"   # match the source used in event_data()
   )
 })
+
 ```
 
 
