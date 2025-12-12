@@ -764,7 +764,7 @@ renderPlotly({
     labs(
       x = "SCORE(1 = low, 5 = high)",
       y = NULL, 
-      title = paste("Trait profile for", input$breed_traits_select)
+      title = paste("Trait Profile for", input$breed_traits_select)
     ) +
     theme_minimal() +
     theme(
@@ -1044,7 +1044,7 @@ renderPlotly({
       y_trait = dplyr::all_of(input$trait_y)
     )
   
-  # Calculate correlation for these two traits
+  # Calculate correlation for these two traits --------------------------------
   cor_value <- cor(df$x_trait, df$y_trait, use = "complete.obs")
   
   p <- ggplot(
@@ -1077,7 +1077,18 @@ renderPlotly({
       y     = input$trait_y,
       title = paste0("Correlation: ", round(cor_value, 3))
     ) +
-    theme_minimal()
+    theme_minimal() +
+    theme(
+      axis.title.x = element_text(size = 12, face = "bold"),
+      axis.title.y = element_text(size = 12, face = "bold"),
+      axis.text.x  = element_text(size = 10),
+      axis.text.y  = element_text(size = 10),
+      plot.title   = element_text(
+        hjust = 0.5,   # center
+        face  = "bold",
+        size  = 14
+      )
+    )
   
   ggplotly(
     p,
