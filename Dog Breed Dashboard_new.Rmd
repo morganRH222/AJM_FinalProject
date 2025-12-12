@@ -15,7 +15,7 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-# Load packages
+# Load packages ------------------------------------------------------------
 library(flexdashboard)
 library(shiny)
 library(tidyverse)
@@ -35,7 +35,7 @@ trait_description <- readr::read_csv("data/trait_description.csv")
 breed_traits <- breed_traits %>%
   mutate(Breed = str_replace_all(Breed, "\u00a0", " "))
 
-# Image lookup table from breed_rank.csv
+# Image lookup table from breed_rank.csv -----------------------------------
 
 breed_images <- breed_rank %>%
   dplyr::select(Breed, ColorImageURL = Color_Image, ImageURL = Image)
@@ -56,12 +56,13 @@ rank_long <- breed_rank %>%
 
 trait_long <- breed_traits %>%
   pivot_longer(
-    cols = where(is.numeric),   # <-- only the numeric trait columns
+    cols = where(is.numeric),   # only the numeric trait columns
     names_to = "Trait",
     values_to = "Score"
   )
 
 # Order traits by their mean score (low → high) and define a shared color palette
+
 trait_summary <- trait_long %>%
   dplyr::group_by(Trait) %>%
   dplyr::summarise(
@@ -72,7 +73,8 @@ trait_summary <- trait_long %>%
 
 trait_order <- trait_summary %>% dplyr::pull(Trait)
 
-# One color per trait using viridis
+# One color per trait using viridis (color blind-friendly)-------------------
+
 trait_pal <- viridis::viridis(length(trait_order), option = "H")
 names(trait_pal) <- trait_order
 
@@ -88,19 +90,22 @@ total_breeds <- breed_traits %>%
   distinct(Breed) %>% 
   nrow()
 
-# Most popular breed in 2020 
+# Most popular breed in 2020 ------------------------------------------------ 
+
 most_popular_2020 <- breed_rank %>%
   filter(`2020 Rank` == 1) %>%
   pull(Breed)
 
-# Least popular breed in 2020 
+# Least popular breed in 2020 ----------------------------------------------- 
+
 least_popular_2020 <- breed_rank %>%
   filter(!is.na(`2020 Rank`)) %>%
   arrange(desc(`2020 Rank`)) %>%  # highest rank = least popular
   slice(1) %>%
   pull(Breed)
 
-# Calculate biggest rank improvement (rank going DOWN is better)
+# Calculate biggest rank improvement (rank going DOWN is better) ------------
+
 biggest_improver <- breed_rank %>%
   mutate(rank_change = `2013 Rank` - `2020 Rank`) %>%
   arrange(desc(rank_change)) %>%
@@ -113,7 +118,8 @@ biggest_improvement <- breed_rank %>%
   slice(1) %>%
   pull(rank_change)
 
-# Calculate biggest rank decline (rank going UP = less popular)
+# Calculate biggest rank decline (rank going UP = less popular) --------------
+
 biggest_decliner <- breed_rank %>%
   mutate(rank_drop = `2020 Rank` - `2013 Rank`) %>%  # positive = worse rank
   arrange(desc(rank_drop)) %>%
@@ -126,7 +132,8 @@ biggest_rank_drop <- breed_rank %>%
   slice(1) %>%
   pull(rank_drop)
 
-# Correlation matrix for traits
+# Correlation matrix for traits -----------------------------------------------
+
 trait_cor <- breed_traits %>%
   select(where(is.numeric)) %>%
   cor(use = "pairwise.complete.obs")
@@ -140,11 +147,12 @@ Column {data-width=45}
 -----------------------------------------------------------------------
 ### 
 ```{r echo=FALSE}
+
 tags$div(
   style = "
     display: flex;
-    align-items: stretch;     /* let the image stretch vertically */
-    justify-content: stretch; /* let the image stretch horizontally */
+    align-items: stretch;     # image stretch vertically
+    justify-content: stretch; # image stretch horizontally
     height: 100%;
     width: 100%;
     padding: 0;
@@ -155,7 +163,7 @@ tags$div(
     style = "
       width: 100%;
       height: 100%;
-      object-fit: cover;  /* fill pane, crop if needed */
+      object-fit: cover;  #fill pane
       border-radius: 0;
       box-shadow: none;
       display: block;
@@ -166,7 +174,7 @@ tags$div(
 
 ### **🐾 ABOUT THIS DASHBOARD 🐾**
 
-This interactive flexdashboard uses American Kennel Club (AKC) data to explore dog breeds from three main angles:
+This interactive flexdashboard uses American Kennel Club (AKC) data to explore dog breeds from different angles:
 
 - **Popularity over time (2013–2020)** using yearly AKC ranks (1 = most popular).  
 - **Behavior, care, and suitability traits** scored from 1 (low) to 5 (high).
@@ -175,27 +183,29 @@ This interactive flexdashboard uses American Kennel Club (AKC) data to explore d
 
 Across the tabs, you can:
 
-📝 Overview: Preview AKC popularity ranks (2013–2020) and how rank works (1 = most popular).
+**📝 Overview:** Preview AKC popularity ranks (2013–2020) and how rank works (1 = most popular).
 
-📊 Summary: See key metrics (total breeds, most/least popular, biggest risers/fallers) plus average trait scores and their distributions.
+**📊 Summary:** See key metrics (total breeds, most/least popular, biggest riser/faller) plus average trait scores and their distributions.
 
-🏆 Popularity: Compare popularity trends for selected breeds over time and view their images, including on hover.
+**🏆 Popularity:** Compare popularity trends for selected breeds over time and view their images, including on hover.
 
-🔍 Breed Traits Explorer: Inspect a single breed’s trait profile (1–5 scores), with sketch, full-color photo, and trait definitions.
+**🔍 Breed Traits Explorer:** Inspect a single breed’s trait profile (1–5 scores), with sketch, full-color photo, and trait definitions.
 
-🔗 Trait Correlation: Explore a trait correlation heatmap, top correlated trait pairs, and a scatterplot for any two traits with hoverable breed images.
+**🔗 Trait Correlation:** Explore a trait correlation heatmap, top correlated trait pairs, and a scatterplot for any two traits with hoverable breed images.
 
 
-Overall, this dashboard is designed to help you:
+**Overall, this dashboard is designed to help you:**
+
 - Compare how popular different breeds have been over time.  
 - Understand each breed’s behavioral and care traits in detail.  
-- Discover patterns and relationships among traits across all breeds, with images and interactivity to make the data more intuitive and fun to explore.
+- Discover patterns and relationships among traits across all breeds
 
 Column {data-width=55}
 -----------------------------------------------------------------------
 ```{r}
 
-# Make a small data frame for the preview
+# Make a small data frame for the preview ------------------------------------
+
 df_preview <- breed_rank %>%
   dplyr::select(
     Breed,
@@ -208,20 +218,20 @@ datatable(
   options = list(
     pageLength = 10,
     lengthMenu = c(10, 25, 50, 100, nrow(df_preview)),
-    scrollY = "60vh",                        # taller scrolling region for rows
-    scrollCollapse = TRUE,                   # collapse if fewer rows
-    dom = "lfrtip"                           # keep length, filter, table, info, paging
+    scrollY = "70vh",               # taller scrolling region for rows
+    scrollCollapse = TRUE,          # collapse if fewer rows
+    dom = "lfrtip"                  # keep length, filter, table, info, paging
   ),
   caption = "Sample of dog breeds with popularity rank (lower = more popular)."
 ) %>%
   DT::formatStyle(
     columns = names(df_preview),
-    backgroundColor = "#FFF7E6",   # warm cream (like light fur)
+    backgroundColor = "#FFF7E6",   # warm cream background
     color           = "#4A2C2A"    # deep brown text
   ) %>%
   DT::formatStyle(
     "Breed",
-    fontWeight = "bold"            # make breed names stand out
+    fontWeight = "bold"            
   )
 
 ```
@@ -321,8 +331,7 @@ renderPlotly({
     scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
     labs(
       x = "Average Score",
-      y = "Trait",
-      title = "Mean trait scores across all dog breeds"
+      title = "Average trait scores across all dog breeds"
     ) +
     theme_minimal() +
     theme(legend.position = "none")
@@ -359,22 +368,21 @@ renderPlotly({
     ) +
     theme_minimal() +
     theme(
-      strip.text      = element_text(size = 8, face = "bold"),
-      axis.text       = element_text(size = 7),
-      legend.position = "none"
+      strip.text      = element_text(size = 10, face = "bold"),
+      axis.text       = element_text(size = 10),
+      axis.title      = element_text(size = 12, face = "bold"),
+      legend.position = "none",
+      plot.title      = element_text(hjust = 0.5, face = "bold", size = 14) # center title
     )
 
   ggplotly(p)
 })
-
 
 ```
 
 
 **🏆 POPULARITY**
 =====================================
-
-
 
 Column {data-width=340 .sidebar}
 -----------------------------------------------------------------------
@@ -914,7 +922,7 @@ output$breed_image <- renderUI({
 ```
 
 
-### 🔍 Select Traits to Explore Correlation {data-height=55}
+### 🔍 Select Traits to Explore Correlation {data-height=40}
 ```{r}
 fluidRow(
   column(
@@ -951,7 +959,7 @@ fluidRow(
 
 ```
 
-### 📉 Scatterplot: Selected Traits {data-height=45}
+### 📉 Scatterplot: Selected Traits {data-height=60}
 ```{r}
 renderPlotly({
   req(input$trait_x, input$trait_y)
